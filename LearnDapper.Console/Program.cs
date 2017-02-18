@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -14,9 +15,11 @@ namespace LearnDapper.Console
     {
         static void Main(string[] args)
         {
-            IDbConnection connection = new SqlConnection("Data Source=.;Initial Catalog=PracticeDB;User Id=sa;Password=123456;");
+            IDbConnection connection =
+                new SqlConnection("Data Source=.;Initial Catalog=PracticeDB;User Id=sa;Password=123456;");
 
             #region insert
+
             //var result =
             //    connection.Execute("insert into Users values (@UserName, @Email, @Address)", new
             //    {
@@ -35,6 +38,7 @@ namespace LearnDapper.Console
             //var result = connection.Execute("insert into users values (@UserName, @Email, @Address)", data); 
 
             //System.Console.WriteLine(result);
+
             #endregion
 
             #region query
@@ -54,6 +58,7 @@ namespace LearnDapper.Console
             //    }
             //    System.Console.WriteLine("+++++++++++++++++++++++");
             //}
+
             #endregion
 
             #region update
@@ -69,20 +74,50 @@ namespace LearnDapper.Console
 
             #region delete
 
-            var result= connection.Execute("delete from Users where userId=@userid", new
-            {
-                UserId= "11"
-            });
+            //var result= connection.Execute("delete from Users where userId=@userid", new
+            //{
+            //    UserId= "11"
+            //});
 
-            System.Console.WriteLine(result);
+            //System.Console.WriteLine(result);
 
             #endregion
 
+            #region in操作
+
+            IEnumerable<Users> users = connection.Query<Users>("select * from Users where userId in @userId", new
+            {
+                UserId = new int[] { 1, 2, 3 }
+            });
+
+            OutputUsersDetails(users);
+
+
+            #endregion
+
+        }
+
+        private static void OutputUsersDetails(IEnumerable<Users> users)
+        {
+            Type tUsers = typeof(Users);
+            PropertyInfo[] propertyInfos = tUsers.GetProperties();
+
+            foreach (var user in users)
+            {
+                foreach (var propertyInfo in propertyInfos)
+                {
+                    var value = (string)propertyInfo.GetValue(user);
+                    var name = propertyInfo.Name;
+                    System.Console.WriteLine($"{name}==={value}");
+                }
+                System.Console.WriteLine("+++++++++++++++++++++++");
+            }
         }
     }
 
     public class Users
     {
+        public string UserId { get; set; }
         public string UserName { get; set; }
         public string Email { get; set; }
         public string Address { get; set; }
