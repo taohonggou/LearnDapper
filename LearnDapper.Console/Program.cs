@@ -39,23 +39,44 @@ namespace LearnDapper.Console
 
             #region query
 
-            IEnumerable<Users> users = connection.Query<Users>("select * from Users where Username=@username", new { UserName = "Mr. Li" });
+            //IEnumerable<Users> users = connection.Query<Users>("select * from Users where Username=@username", new { UserName = "Mr. Li" });
 
-            Type tUsers = typeof(Users);
-            PropertyInfo[] propertyInfos = tUsers.GetProperties();
+            //Type tUsers = typeof(Users);
+            //PropertyInfo[] propertyInfos = tUsers.GetProperties();
 
-            foreach (var user in users)
-            {
-                foreach (var propertyInfo in propertyInfos)
-                {
-                    var value = (string)propertyInfo.GetValue(user);
-                    var name = propertyInfo.Name;
-                    System.Console.WriteLine($"{name}==={value}");
-                }
-                System.Console.WriteLine("+++++++++++++++++++++++");
-            }
+            //foreach (var user in users)
+            //{
+            //    foreach (var propertyInfo in propertyInfos)
+            //    {
+            //        var value = (string)propertyInfo.GetValue(user);
+            //        var name = propertyInfo.Name;
+            //        System.Console.WriteLine($"{name}==={value}");
+            //    }
+            //    System.Console.WriteLine("+++++++++++++++++++++++");
+            //}
             #endregion
 
+            #region update
+
+            //var result= connection.Execute("update Users set UserName='John' where UserId=@UserId", new
+            //{
+            //    UserId = 1
+            //});
+
+            //System.Console.WriteLine(result);
+
+            #endregion
+
+            #region delete
+
+            var result= connection.Execute("delete from Users where userId=@userid", new
+            {
+                UserId= "11"
+            });
+
+            System.Console.WriteLine(result);
+
+            #endregion
 
         }
     }
