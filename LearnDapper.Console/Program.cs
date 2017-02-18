@@ -85,30 +85,55 @@ namespace LearnDapper.Console
 
             #region in操作
 
-            IEnumerable<Users> users = connection.Query<Users>("select * from Users where userId in @userId", new
-            {
-                UserId = new int[] { 1, 2, 3 }
-            });
+            //IEnumerable<Users> users = connection.Query<Users>("select * from Users where userId in @userId", new
+            //{
+            //    UserId = new int[] { 1, 2, 3 }
+            //});
 
-            OutputUsersDetails(users);
+            //OutputUsersDetails(users);
 
 
             #endregion
 
+
+            #region 多条sql一起执行
+
+            //var data= Enumerable.Range(0, 10).Select<int,Product>(i =>new Product()
+            //{
+            //    ProductDesc =$"{i}Desc",
+            //        ProductName =$"{i}Name",
+            //        CreateTime = DateTime.Now
+            //});
+            // var result= connection.Execute("insert into Product values (@ProductName,@ProductDesc,@UserID,@CreateTime)", data);
+
+            // System.Console.WriteLine(result);
+
+            string sql = "select * from Users;select * from Product;";
+
+            var reader = connection.QueryMultiple(sql);
+            var productList = reader.Read<Product>();
+            var userList = reader.Read<Users>();
+
+            OutputUsersDetails<Product>(productList);
+            OutputUsersDetails<Users>(userList);
+            reader.Dispose();
+
+
+            #endregion
         }
 
-        private static void OutputUsersDetails(IEnumerable<Users> users)
+        private static void OutputUsersDetails<T>(IEnumerable<T> t)
         {
-            Type tUsers = typeof(Users);
+            Type tUsers = typeof(T);
             PropertyInfo[] propertyInfos = tUsers.GetProperties();
 
-            foreach (var user in users)
+            foreach (var user in t)
             {
                 foreach (var propertyInfo in propertyInfos)
                 {
                     var value = (string)propertyInfo.GetValue(user);
                     var name = propertyInfo.Name;
-                    System.Console.WriteLine($"{name}==={value}");
+                    System.Console.WriteLine(name + "===" + value);
                 }
                 System.Console.WriteLine("+++++++++++++++++++++++");
             }
@@ -121,5 +146,14 @@ namespace LearnDapper.Console
         public string UserName { get; set; }
         public string Email { get; set; }
         public string Address { get; set; }
+    }
+
+    public class Product
+    {
+        public string ProductID { get; set; }
+        public string ProductName { get; set; }
+        public string ProductDesc { get; set; }
+        public string UserID { get; set; }
+        public string CreateTime { get; set; }
     }
 }
